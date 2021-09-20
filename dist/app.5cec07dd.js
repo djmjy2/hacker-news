@@ -117,36 +117,8 @@ parcelRequire = (function (modules, cache, entry, globalName) {
   }
 
   return newRequire;
-})({"app.ts":[function(require,module,exports) {
+})({"src/core/router.ts":[function(require,module,exports) {
 "use strict";
-
-var __extends = this && this.__extends || function () {
-  var _extendStatics = function extendStatics(d, b) {
-    _extendStatics = Object.setPrototypeOf || {
-      __proto__: []
-    } instanceof Array && function (d, b) {
-      d.__proto__ = b;
-    } || function (d, b) {
-      for (var p in b) {
-        if (Object.prototype.hasOwnProperty.call(b, p)) d[p] = b[p];
-      }
-    };
-
-    return _extendStatics(d, b);
-  };
-
-  return function (d, b) {
-    if (typeof b !== "function" && b !== null) throw new TypeError("Class extends value " + String(b) + " is not a constructor or null");
-
-    _extendStatics(d, b);
-
-    function __() {
-      this.constructor = d;
-    }
-
-    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-  };
-}();
 
 var __values = this && this.__values || function (o) {
   var s = typeof Symbol === "function" && Symbol.iterator,
@@ -165,110 +137,16 @@ var __values = this && this.__values || function (o) {
   throw new TypeError(s ? "Object is not iterable." : "Symbol.iterator is not defined.");
 };
 
-var NEWS_URL = 'https://api.hnpwa.com/v0/news/1.json';
-var CONTENT_URL = 'https://api.hnpwa.com/v0/item/@id.json';
-var store = {
-  currentPage: 1,
-  feeds: []
-};
-
-var Api =
-/** @class */
-function () {
-  function Api(url) {
-    this.ajax = new XMLHttpRequest();
-    this.url = url;
-  }
-
-  Api.prototype.getRequest = function () {
-    this.ajax.open('GET', this.url, false);
-    this.ajax.send();
-    return JSON.parse(this.ajax.response);
-  };
-
-  return Api;
-}();
-
-var NewsFeedApi =
-/** @class */
-function (_super) {
-  __extends(NewsFeedApi, _super);
-
-  function NewsFeedApi() {
-    return _super !== null && _super.apply(this, arguments) || this;
-  }
-
-  NewsFeedApi.prototype.getData = function () {
-    return this.getRequest();
-  };
-
-  return NewsFeedApi;
-}(Api);
-
-var NewsDetailApi =
-/** @class */
-function (_super) {
-  __extends(NewsDetailApi, _super);
-
-  function NewsDetailApi() {
-    return _super !== null && _super.apply(this, arguments) || this;
-  }
-
-  NewsDetailApi.prototype.getData = function () {
-    return this.getRequest();
-  };
-
-  return NewsDetailApi;
-}(Api);
-
-var View =
-/** @class */
-function () {
-  function View(containerId, template) {
-    var containerElement = document.getElementById(containerId);
-
-    if (!containerElement) {
-      throw '최상위 컨테이너가 없어 UI를 진행하지 못합니다.';
-    }
-
-    this.container = containerElement;
-    this.template = template;
-    this.renderTemplate = template;
-    this.htmlList = [];
-  }
-
-  View.prototype.updateView = function () {
-    this.container.innerHTML = this.renderTemplate;
-    this.renderTemplate = this.template;
-  };
-
-  View.prototype.addHtml = function (htmlString) {
-    this.htmlList.push(htmlString);
-  };
-
-  View.prototype.getHtml = function () {
-    var snapshot = this.htmlList.join('');
-    this.clearHtmlList(); //최총 호출 이후 HTML 클리어
-
-    return snapshot;
-  };
-
-  View.prototype.setTemplateData = function (key, value) {
-    this.renderTemplate = this.renderTemplate.replace("{{__" + key + "__}}", value);
-  };
-
-  View.prototype.clearHtmlList = function () {
-    this.htmlList = [];
-  };
-
-  return View;
-}();
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
 
 var Router =
 /** @class */
 function () {
   function Router() {
-    window.addEventListener('hashchange', this.route.bind(this));
+    window.addEventListener('hashchange', this.route.bind(this)); //윈도우 해시체인지에 route를 연결
+
     this.routeTable = [];
     this.defaultRoute = null;
   }
@@ -321,17 +199,309 @@ function () {
   return Router;
 }();
 
+exports.default = Router;
+},{}],"src/core/view.ts":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var View =
+/** @class */
+function () {
+  function View(containerId, template) {
+    var containerElement = document.getElementById(containerId);
+
+    if (!containerElement) {
+      throw '최상위 컨테이너가 없어 UI를 진행하지 못합니다.';
+    }
+
+    this.container = containerElement;
+    this.template = template;
+    this.renderTemplate = template;
+    this.htmlList = [];
+  }
+
+  View.prototype.updateView = function () {
+    this.container.innerHTML = this.renderTemplate;
+    this.renderTemplate = this.template;
+  };
+
+  View.prototype.addHtml = function (htmlString) {
+    this.htmlList.push(htmlString);
+  };
+
+  View.prototype.getHtml = function () {
+    var snapshot = this.htmlList.join('');
+    this.clearHtmlList(); //최총 호출 이후 HTML 클리어
+
+    return snapshot;
+  };
+
+  View.prototype.setTemplateData = function (key, value) {
+    this.renderTemplate = this.renderTemplate.replace("{{__" + key + "__}}", value);
+  };
+
+  View.prototype.clearHtmlList = function () {
+    this.htmlList = [];
+  };
+
+  return View;
+}();
+
+exports.default = View;
+},{}],"src/core/api.ts":[function(require,module,exports) {
+"use strict";
+
+var __extends = this && this.__extends || function () {
+  var _extendStatics = function extendStatics(d, b) {
+    _extendStatics = Object.setPrototypeOf || {
+      __proto__: []
+    } instanceof Array && function (d, b) {
+      d.__proto__ = b;
+    } || function (d, b) {
+      for (var p in b) {
+        if (Object.prototype.hasOwnProperty.call(b, p)) d[p] = b[p];
+      }
+    };
+
+    return _extendStatics(d, b);
+  };
+
+  return function (d, b) {
+    if (typeof b !== "function" && b !== null) throw new TypeError("Class extends value " + String(b) + " is not a constructor or null");
+
+    _extendStatics(d, b);
+
+    function __() {
+      this.constructor = d;
+    }
+
+    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+  };
+}();
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.NewsDetailApi = exports.NewsFeedApi = exports.Api = void 0;
+
+var Api =
+/** @class */
+function () {
+  function Api(url) {
+    this.ajax = new XMLHttpRequest();
+    this.url = url;
+  }
+
+  Api.prototype.getRequest = function () {
+    this.ajax.open('GET', this.url, false);
+    this.ajax.send();
+    return JSON.parse(this.ajax.response);
+  };
+
+  return Api;
+}();
+
+exports.Api = Api;
+
+var NewsFeedApi =
+/** @class */
+function (_super) {
+  __extends(NewsFeedApi, _super);
+
+  function NewsFeedApi() {
+    return _super !== null && _super.apply(this, arguments) || this;
+  }
+
+  NewsFeedApi.prototype.getData = function () {
+    return this.getRequest();
+  };
+
+  return NewsFeedApi;
+}(Api);
+
+exports.NewsFeedApi = NewsFeedApi;
+
+var NewsDetailApi =
+/** @class */
+function (_super) {
+  __extends(NewsDetailApi, _super);
+
+  function NewsDetailApi() {
+    return _super !== null && _super.apply(this, arguments) || this;
+  }
+
+  NewsDetailApi.prototype.getData = function () {
+    return this.getRequest();
+  };
+
+  return NewsDetailApi;
+}(Api);
+
+exports.NewsDetailApi = NewsDetailApi;
+},{}],"src/config.ts":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.CONTENT_URL = exports.NEWS_URL = void 0;
+exports.NEWS_URL = 'https://api.hnpwa.com/v0/news/1.json';
+exports.CONTENT_URL = 'https://api.hnpwa.com/v0/item/@id.json';
+},{}],"src/page/news-detail-view.ts":[function(require,module,exports) {
+"use strict";
+
+var __extends = this && this.__extends || function () {
+  var _extendStatics = function extendStatics(d, b) {
+    _extendStatics = Object.setPrototypeOf || {
+      __proto__: []
+    } instanceof Array && function (d, b) {
+      d.__proto__ = b;
+    } || function (d, b) {
+      for (var p in b) {
+        if (Object.prototype.hasOwnProperty.call(b, p)) d[p] = b[p];
+      }
+    };
+
+    return _extendStatics(d, b);
+  };
+
+  return function (d, b) {
+    if (typeof b !== "function" && b !== null) throw new TypeError("Class extends value " + String(b) + " is not a constructor or null");
+
+    _extendStatics(d, b);
+
+    function __() {
+      this.constructor = d;
+    }
+
+    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+  };
+}();
+
+var __importDefault = this && this.__importDefault || function (mod) {
+  return mod && mod.__esModule ? mod : {
+    "default": mod
+  };
+};
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var view_1 = __importDefault(require("../core/view"));
+
+var api_1 = require("../core/api");
+
+var config_1 = require("../config");
+
+var template = "\n<div class=\"bg-gray-600 min-h-screen pb-8\">\n  <div class=\"bg-white text-xl\">\n    <div class=\"mx-auto px-4\">\n      <div class=\"flex justify-between items-center py-6\">\n        <div class=\"flex justify-start\">\n          <h1 class=\"font-extrabold\">Hacker News</h1>\n        </div>\n        <div class=\"items-center justify-end\">\n          <a href=\"#/page/{{__currentPage__}}\" class=\"text-gray-500\">\n            <i class=\"fa fa-times\"></i>\n          </a>\n        </div>\n      </div>\n    </div>\n  </div>\n\n  <div class=\"h-full border rounded-xl bg-white m-6 p-4 \">\n    <h2>{{__title__}}</h2>\n    <div class=\"text-gray-400 h-20\">\n      {{__content__}}\n    </div>\n\n    {{__comments__}}\n\n  </div>\n</div>\n";
+
+var NewsDetailView =
+/** @class */
+function (_super) {
+  __extends(NewsDetailView, _super);
+
+  function NewsDetailView(containerId) {
+    return _super.call(this, containerId, template) || this;
+  }
+
+  NewsDetailView.prototype.render = function () {
+    var id = location.hash.substr(7);
+    var api = new api_1.NewsDetailApi(config_1.CONTENT_URL.replace('@id', id));
+    var newsDetail = api.getData();
+
+    for (var i = 0; i < window.store.feeds.length; i++) {
+      if (window.store.feeds[i].id === Number(id)) {
+        window.store.feeds[i].read = true;
+        break;
+      }
+    }
+
+    this.setTemplateData('comments', this.makeComment(newsDetail.comments));
+    this.setTemplateData('currentPage', String(window.store.currentPage));
+    this.setTemplateData('title', newsDetail.title);
+    this.setTemplateData('content', newsDetail.content);
+    this.updateView();
+  };
+
+  NewsDetailView.prototype.makeComment = function (comments) {
+    for (var i = 0; i < comments.length; i++) {
+      var comment = comments[i];
+      this.addHtml("\n        <div style=\"padding-left: " + comment.level * 40 + "px;\" class=\"mt-4\">\n          <div class=\"text-gray-400\">\n            <i class=\"fa fa-sort-up mr-2\"></i>\n            <strong>" + comment.user + "</strong> " + comment.time_ago + "\n          </div>\n          <p class=\"text-gray-700\">" + comment.content + "</p>\n        </div>      \n      ");
+
+      if (comment.comments.length > 0) {
+        this.addHtml(this.makeComment(comment.comments));
+      }
+    }
+
+    return this.getHtml();
+  };
+
+  return NewsDetailView;
+}(view_1.default);
+
+exports.default = NewsDetailView;
+},{"../core/view":"src/core/view.ts","../core/api":"src/core/api.ts","../config":"src/config.ts"}],"src/page/news-feed-view.ts":[function(require,module,exports) {
+"use strict";
+
+var __extends = this && this.__extends || function () {
+  var _extendStatics = function extendStatics(d, b) {
+    _extendStatics = Object.setPrototypeOf || {
+      __proto__: []
+    } instanceof Array && function (d, b) {
+      d.__proto__ = b;
+    } || function (d, b) {
+      for (var p in b) {
+        if (Object.prototype.hasOwnProperty.call(b, p)) d[p] = b[p];
+      }
+    };
+
+    return _extendStatics(d, b);
+  };
+
+  return function (d, b) {
+    if (typeof b !== "function" && b !== null) throw new TypeError("Class extends value " + String(b) + " is not a constructor or null");
+
+    _extendStatics(d, b);
+
+    function __() {
+      this.constructor = d;
+    }
+
+    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+  };
+}();
+
+var __importDefault = this && this.__importDefault || function (mod) {
+  return mod && mod.__esModule ? mod : {
+    "default": mod
+  };
+};
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var view_1 = __importDefault(require("../core/view"));
+
+var api_1 = require("../core/api");
+
+var config_1 = require("../config");
+
+var template = "\n<div class=\"bg-gray-600 min-h-screen\">\n  <div class=\"bg-white text-xl\">\n    <div class=\"mx-auto px-4\">\n      <div class=\"flex justify-between items-center py-6\">\n        <div class=\"flex justify-start\">\n          <h1 class=\"font-extrabold\">Hacker News</h1>\n        </div>\n        <div class=\"items-center justify-end\">\n          <a href=\"#/page/{{__prev_page__}}\" class=\"text-gray-500\">\n            Previous\n          </a>\n          <a href=\"#/page/{{__next_page__}}\" class=\"text-gray-500 ml-4\">\n            Next\n          </a>\n        </div>\n      </div> \n    </div>\n  </div>\n  <div class=\"p-4 text-2xl text-gray-700\">\n    {{__news_feed__}}        \n  </div>\n</div>\n";
+
 var NewsFeedView =
 /** @class */
 function (_super) {
   __extends(NewsFeedView, _super);
 
   function NewsFeedView(containerId) {
-    var _this = this;
+    var _this = _super.call(this, containerId, template) || this;
 
-    var template = "\n      <div class=\"bg-gray-600 min-h-screen\">\n        <div class=\"bg-white text-xl\">\n          <div class=\"mx-auto px-4\">\n            <div class=\"flex justify-between items-center py-6\">\n              <div class=\"flex justify-start\">\n                <h1 class=\"font-extrabold\">Hacker News</h1>\n              </div>\n              <div class=\"items-center justify-end\">\n                <a href=\"#/page/{{__prev_page__}}\" class=\"text-gray-500\">\n                  Previous\n                </a>\n                <a href=\"#/page/{{__next_page__}}\" class=\"text-gray-500 ml-4\">\n                  Next\n                </a>\n              </div>\n            </div> \n          </div>\n        </div>\n        <div class=\"p-4 text-2xl text-gray-700\">\n          {{__news_feed__}}        \n        </div>\n      </div>\n    ";
-    _this = _super.call(this, containerId, template) || this;
-    _this.api = new NewsFeedApi(NEWS_URL);
+    _this.api = new api_1.NewsFeedApi(config_1.NEWS_URL);
     _this.feeds = store.feeds;
 
     if (_this.feeds.length === 0) {
@@ -371,64 +541,70 @@ function (_super) {
   };
 
   return NewsFeedView;
-}(View);
+}(view_1.default);
 
-var NewsDetailView =
-/** @class */
-function (_super) {
-  __extends(NewsDetailView, _super);
+exports.default = NewsFeedView;
+},{"../core/view":"src/core/view.ts","../core/api":"src/core/api.ts","../config":"src/config.ts"}],"src/page/index.ts":[function(require,module,exports) {
+"use strict";
 
-  function NewsDetailView(containerId) {
-    var _this = this;
+var __importDefault = this && this.__importDefault || function (mod) {
+  return mod && mod.__esModule ? mod : {
+    "default": mod
+  };
+};
 
-    var template = "\n      <div class=\"bg-gray-600 min-h-screen pb-8\">\n        <div class=\"bg-white text-xl\">\n          <div class=\"mx-auto px-4\">\n            <div class=\"flex justify-between items-center py-6\">\n              <div class=\"flex justify-start\">\n                <h1 class=\"font-extrabold\">Hacker News</h1>\n              </div>\n              <div class=\"items-center justify-end\">\n                <a href=\"#/page/{{__currentPage__}}\" class=\"text-gray-500\">\n                  <i class=\"fa fa-times\"></i>\n                </a>\n              </div>\n            </div>\n          </div>\n        </div>\n  \n        <div class=\"h-full border rounded-xl bg-white m-6 p-4 \">\n          <h2>{{__title__}}</h2>\n          <div class=\"text-gray-400 h-20\">\n            {{__content__}}\n          </div>\n  \n          {{__comments__}}\n  \n        </div>\n      </div>\n    ";
-    _this = _super.call(this, containerId, template) || this;
-    return _this;
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.NewsFeedView = exports.NewsDetailView = void 0;
+
+var news_detail_view_1 = require("./news-detail-view");
+
+Object.defineProperty(exports, "NewsDetailView", {
+  enumerable: true,
+  get: function get() {
+    return __importDefault(news_detail_view_1).default;
   }
+});
 
-  NewsDetailView.prototype.render = function () {
-    var id = location.hash.substr(7);
-    var api = new NewsDetailApi(CONTENT_URL.replace('@id', id));
-    var newsDetail = api.getData();
+var news_feed_view_1 = require("./news-feed-view");
 
-    for (var i = 0; i < store.feeds.length; i++) {
-      if (store.feeds[i].id === Number(id)) {
-        store.feeds[i].read = true;
-        break;
-      }
-    }
+Object.defineProperty(exports, "NewsFeedView", {
+  enumerable: true,
+  get: function get() {
+    return __importDefault(news_feed_view_1).default;
+  }
+});
+},{"./news-detail-view":"src/page/news-detail-view.ts","./news-feed-view":"src/page/news-feed-view.ts"}],"src/app.ts":[function(require,module,exports) {
+"use strict";
 
-    this.setTemplateData('comments', this.makeComment(newsDetail.comments));
-    this.setTemplateData('currentPage', String(store.currentPage));
-    this.setTemplateData('title', newsDetail.title);
-    this.setTemplateData('content', newsDetail.content);
-    this.updateView();
+var __importDefault = this && this.__importDefault || function (mod) {
+  return mod && mod.__esModule ? mod : {
+    "default": mod
   };
+};
 
-  NewsDetailView.prototype.makeComment = function (comments) {
-    for (var i = 0; i < comments.length; i++) {
-      var comment = comments[i];
-      this.addHtml("\n        <div style=\"padding-left: " + comment.level * 40 + "px;\" class=\"mt-4\">\n          <div class=\"text-gray-400\">\n            <i class=\"fa fa-sort-up mr-2\"></i>\n            <strong>" + comment.user + "</strong> " + comment.time_ago + "\n          </div>\n          <p class=\"text-gray-700\">" + comment.content + "</p>\n        </div>      \n      ");
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
 
-      if (comment.comments.length > 0) {
-        this.addHtml(this.makeComment(comment.comments));
-      }
-    }
+var router_1 = __importDefault(require("./core/router"));
 
-    return this.getHtml();
-  };
+var page_1 = require("./page");
 
-  return NewsDetailView;
-}(View);
-
-var router = new Router();
-var newsFeedView = new NewsFeedView('root');
-var newsDetailView = new NewsDetailView('root');
+var store = {
+  currentPage: 1,
+  feeds: []
+};
+window.store = store;
+var router = new router_1.default();
+var newsFeedView = new page_1.NewsFeedView('root');
+var newsDetailView = new page_1.NewsDetailView('root');
 router.setDefaultPage(newsFeedView);
 router.addRoutePath('/page/', newsFeedView);
 router.addRoutePath('/show/', newsDetailView);
-router.route();
-},{}],"../../../AppData/Roaming/npm/node_modules/parcel-bundler/src/builtins/hmr-runtime.js":[function(require,module,exports) {
+router.route(); //최초 실행시엔 해시체인지가 발생하지 않으므로 route를 수동동작
+},{"./core/router":"src/core/router.ts","./page":"src/page/index.ts"}],"../../../AppData/Roaming/npm/node_modules/parcel-bundler/src/builtins/hmr-runtime.js":[function(require,module,exports) {
 var global = arguments[3];
 var OVERLAY_ID = '__parcel__error__overlay__';
 var OldModule = module.bundle.Module;
@@ -632,5 +808,5 @@ function hmrAcceptRun(bundle, id) {
     return true;
   }
 }
-},{}]},{},["../../../AppData/Roaming/npm/node_modules/parcel-bundler/src/builtins/hmr-runtime.js","app.ts"], null)
-//# sourceMappingURL=/app.c61986b1.js.map
+},{}]},{},["../../../AppData/Roaming/npm/node_modules/parcel-bundler/src/builtins/hmr-runtime.js","src/app.ts"], null)
+//# sourceMappingURL=/app.5cec07dd.js.map
