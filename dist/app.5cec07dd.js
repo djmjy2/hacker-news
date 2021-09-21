@@ -526,9 +526,9 @@ var NewsFeedView = /*#__PURE__*/function (_view_1$default) {
 
       _this.setTemplateData('news_feed', _this.getHtml());
 
-      _this.setTemplateData('prev_page', String(_this.store.prevpage));
+      _this.setTemplateData('prev_page', String(_this.store.prevPage));
 
-      _this.setTemplateData('next_page', String(_this.store.nextpage));
+      _this.setTemplateData('next_page', String(_this.store.nextPage));
 
       _this.updateView();
     };

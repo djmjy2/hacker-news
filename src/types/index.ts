@@ -8,8 +8,8 @@ export interface NewsStore {
   hasFeeds: boolean;
   currentPage: number;
   numberOfFeed: number;
-  nextpage: number;
-  prevpage: number;
+  nextPage: number;
+  prevPage: number;
 }
 
 export interface News {
