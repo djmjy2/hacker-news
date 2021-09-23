@@ -25,9 +25,7 @@ const template = `
     <div class="text-gray-400 h-20">
       {{__content__}}
     </div>
-
     {{__comments__}}
-
   </div>
 </div>
 `;
@@ -40,21 +38,23 @@ export default class NewsDetailView extends View {
     this.store = store;
   }
 
-  render() {
-    const id = location.hash.substr(7);
+  render = (id: string): void => {
     const api = new NewsDetailApi(CONTENT_URL.replace('@id', id));
-    const newsDetail: NewsDetail = api.getData();
+    
+    api.getDataWithPromise((data: NewsDetail) => {
+      const { title, content, comments } = data;
 
-    this.store.makeRead(Number(id));
-    this.setTemplateData('comments', this.makeComment(newsDetail.comments))
-    this.setTemplateData('currentPage', String(this.store.currentPage));
-    this.setTemplateData('title', newsDetail.title);
-    this.setTemplateData('content', newsDetail.content);
+      this.store.makeRead(Number(id));
+      this.setTemplateData('comments', this.makeComment(comments))
+      this.setTemplateData('currentPage', this.store.currentPage.toString());
+      this.setTemplateData('title', title);
+      this.setTemplateData('content', content);
 
-    this.updateView();  
+      this.updateView();  
+    })
   }
 
-  makeComment(comments: NewsComment[]): string {
+  private makeComment(comments: NewsComment[]): string {
     for(let i = 0; i < comments.length; i++) {
       const comment: NewsComment = comments[i];
   

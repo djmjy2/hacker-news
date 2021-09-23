@@ -293,16 +293,29 @@ var Api = /*#__PURE__*/function () {
   function Api(url) {
     _classCallCheck(this, Api);
 
-    this.ajax = new XMLHttpRequest();
+    this.xhr = new XMLHttpRequest();
     this.url = url;
   }
 
   _createClass(Api, [{
-    key: "getRequest",
-    value: function getRequest() {
-      this.ajax.open('GET', this.url, false);
-      this.ajax.send();
-      return JSON.parse(this.ajax.response);
+    key: "getRequestWithXHR",
+    value: function getRequestWithXHR(cb) {
+      var _this = this;
+
+      this.xhr.open('GET', this.url);
+      this.xhr.addEventListener('load', function () {
+        cb(JSON.parse(_this.xhr.response));
+      });
+      this.xhr.send();
+    }
+  }, {
+    key: "getRequestWithPromise",
+    value: function getRequestWithPromise(cb) {
+      fetch(this.url).then(function (response) {
+        return response.json();
+      }).then(cb).catch(function () {
+        console.error('데이터를 불러오지 못했습니다.');
+      });
     }
   }]);
 
@@ -316,16 +329,21 @@ var NewsFeedApi = /*#__PURE__*/function (_Api) {
 
   var _super = _createSuper(NewsFeedApi);
 
-  function NewsFeedApi() {
+  function NewsFeedApi(url) {
     _classCallCheck(this, NewsFeedApi);
 
-    return _super.apply(this, arguments);
+    return _super.call(this, url);
   }
 
   _createClass(NewsFeedApi, [{
-    key: "getData",
-    value: function getData() {
-      return this.getRequest();
+    key: "getDataWithXHR",
+    value: function getDataWithXHR(cb) {
+      return this.getRequestWithXHR(cb);
+    }
+  }, {
+    key: "getDataWithPromise",
+    value: function getDataWithPromise(cb) {
+      return this.getRequestWithPromise(cb);
     }
   }]);
 
@@ -339,16 +357,21 @@ var NewsDetailApi = /*#__PURE__*/function (_Api2) {
 
   var _super2 = _createSuper(NewsDetailApi);
 
-  function NewsDetailApi() {
+  function NewsDetailApi(url) {
     _classCallCheck(this, NewsDetailApi);
 
-    return _super2.apply(this, arguments);
+    return _super2.call(this, url);
   }
 
   _createClass(NewsDetailApi, [{
-    key: "getData",
-    value: function getData() {
-      return this.getRequest();
+    key: "getDataWithXHR",
+    value: function getDataWithXHR(cb) {
+      return this.getRequestWithXHR(cb);
+    }
+  }, {
+    key: "getDataWithPromise",
+    value: function getDataWithPromise(cb) {
+      return this.getRequestWithPromise(cb);
     }
   }]);
 
@@ -406,7 +429,7 @@ var api_1 = require("../core/api");
 
 var config_1 = require("../config");
 
-var template = "\n<div class=\"bg-gray-600 min-h-screen pb-8\">\n  <div class=\"bg-white text-xl\">\n    <div class=\"mx-auto px-4\">\n      <div class=\"flex justify-between items-center py-6\">\n        <div class=\"flex justify-start\">\n          <h1 class=\"font-extrabold\">Hacker News</h1>\n        </div>\n        <div class=\"items-center justify-end\">\n          <a href=\"#/page/{{__currentPage__}}\" class=\"text-gray-500\">\n            <i class=\"fa fa-times\"></i>\n          </a>\n        </div>\n      </div>\n    </div>\n  </div>\n\n  <div class=\"h-full border rounded-xl bg-white m-6 p-4 \">\n    <h2>{{__title__}}</h2>\n    <div class=\"text-gray-400 h-20\">\n      {{__content__}}\n    </div>\n\n    {{__comments__}}\n\n  </div>\n</div>\n";
+var template = "\n<div class=\"bg-gray-600 min-h-screen pb-8\">\n  <div class=\"bg-white text-xl\">\n    <div class=\"mx-auto px-4\">\n      <div class=\"flex justify-between items-center py-6\">\n        <div class=\"flex justify-start\">\n          <h1 class=\"font-extrabold\">Hacker News</h1>\n        </div>\n        <div class=\"items-center justify-end\">\n          <a href=\"#/page/{{__currentPage__}}\" class=\"text-gray-500\">\n            <i class=\"fa fa-times\"></i>\n          </a>\n        </div>\n      </div>\n    </div>\n  </div>\n\n  <div class=\"h-full border rounded-xl bg-white m-6 p-4 \">\n    <h2>{{__title__}}</h2>\n    <div class=\"text-gray-400 h-20\">\n      {{__content__}}\n    </div>\n    {{__comments__}}\n  </div>\n</div>\n";
 
 var NewsDetailView = /*#__PURE__*/function (_view_1$default) {
   _inherits(NewsDetailView, _view_1$default);
@@ -419,24 +442,33 @@ var NewsDetailView = /*#__PURE__*/function (_view_1$default) {
     _classCallCheck(this, NewsDetailView);
 
     _this = _super.call(this, containerId, template);
+
+    _this.render = function (id) {
+      var api = new api_1.NewsDetailApi(config_1.CONTENT_URL.replace('@id', id));
+      api.getDataWithPromise(function (data) {
+        var title = data.title,
+            content = data.content,
+            comments = data.comments;
+
+        _this.store.makeRead(Number(id));
+
+        _this.setTemplateData('comments', _this.makeComment(comments));
+
+        _this.setTemplateData('currentPage', _this.store.currentPage.toString());
+
+        _this.setTemplateData('title', title);
+
+        _this.setTemplateData('content', content);
+
+        _this.updateView();
+      });
+    };
+
     _this.store = store;
     return _this;
   }
 
   _createClass(NewsDetailView, [{
-    key: "render",
-    value: function render() {
-      var id = location.hash.substr(7);
-      var api = new api_1.NewsDetailApi(config_1.CONTENT_URL.replace('@id', id));
-      var newsDetail = api.getData();
-      this.store.makeRead(Number(id));
-      this.setTemplateData('comments', this.makeComment(newsDetail.comments));
-      this.setTemplateData('currentPage', String(this.store.currentPage));
-      this.setTemplateData('title', newsDetail.title);
-      this.setTemplateData('content', newsDetail.content);
-      this.updateView();
-    }
-  }, {
     key: "makeComment",
     value: function makeComment(comments) {
       for (var i = 0; i < comments.length; i++) {
@@ -511,6 +543,18 @@ var NewsFeedView = /*#__PURE__*/function (_view_1$default) {
       var page = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : '1';
       _this.store.currentPage = Number(page);
 
+      if (!_this.store.hasFeeds) {
+        _this.api.getDataWithPromise(function (feeds) {
+          _this.store.setFeeds(feeds);
+
+          _this.renderView();
+        });
+      }
+
+      _this.renderView();
+    };
+
+    _this.renderView = function () {
       for (var i = (_this.store.currentPage - 1) * 10; i < _this.store.currentPage * 10; i++) {
         var _this$store$getFeed = _this.store.getFeed(i),
             id = _this$store$getFeed.id,
@@ -535,11 +579,6 @@ var NewsFeedView = /*#__PURE__*/function (_view_1$default) {
 
     _this.api = new api_1.NewsFeedApi(config_1.NEWS_URL);
     _this.store = store;
-
-    if (!_this.store.hasFeeds) {
-      _this.store.setFeeds(_this.api.getData());
-    }
-
     return _this;
   }
 
@@ -719,7 +758,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "50612" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "54689" + '/');
 
   ws.onmessage = function (event) {
     checkedAssets = {};
