@@ -19,3 +19,7 @@
 'Store' 형식의 인수는 'NewsStore' 형식의 매개 변수에 할당될 수 없습니다 'Store' 형식에 'NewsStore' 형식의 nextpage, prevpage 속성이 없습니다.
 이건 뭐가문제일까... 
 -> 대소문자... nextpage > nextPage, prevpage > prevPage 하아...
+
+2021.09.25
+async await 를 사용하여 동기코드같은 구조지만 비동기로 동작하게끔
+!!Promise 에 대해 조금 더 공부하여 확실히 이해하기!!
